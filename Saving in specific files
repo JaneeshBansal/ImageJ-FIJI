@@ -1,0 +1,67 @@
+//saving in specific folders
+
+// ask user to select a folder
+dir = getDirectory("Select A folder");
+
+// get the list of files (& folders) in it
+fileList = getFileList(dir);
+
+// prepare a folder to output the images
+output1 = getDirectory("Output directory for GFP");
+
+// prepare a folder to output the images
+output2 = getDirectory("Output directory for PCNA");
+
+// prepare a folder to output the images
+output3 = getDirectory("Output directory for BF");
+
+//activate batch mode if you don't want all the windows popping up while it's running
+//in you want to see what is happening, put // in front of the command below so it doesn't run
+setBatchMode(true);
+
+// LOOP to process the list of files
+for (i = 0; i < lengthOf(fileList); i++) {
+	// define the "path" 
+	// by concatenation of dir and the i element of the array fileList
+	current_imagePath = dir+fileList[i];
+	// check that the currentFile is not a directory
+	if (!File.isDirectory(current_imagePath)){
+		// open the image and split
+		open(current_imagePath);
+		// get name info about the image
+		fn=getTitle();
+		//rename file as generic for manipulation
+		rename("image");
+		//de-interleave channels
+		run("Deinterleave", "how=3");
+
+		// choose GFP channel
+		selectWindow("image #1");
+		run("8-bit");
+		//define name and save GFP channel 
+		GFP = output1 + "G_" + fn;
+		saveAs("tiff", GFP);
+		
+		//choose the PCNA image
+		selectWindow("image #2");
+		//define file name and save PCNA
+		setMinAndMax(0, 220);
+		run("8-bit");
+		PCNA = output2 + "P_" + fn;
+		saveAs("tiff", PCNA);
+
+		// choose BF channel
+		selectWindow("image #3");
+		//define name and save brightfield image
+		run("Enhance Contrast", "saturated=0.35");
+		run("Apply LUT", "stack")
+		run("8-bit");
+		BF = output3 + "B_" + fn;
+		saveAs("tiff", BF);
+		
+		close();		
+		}
+		
+	}
+	
+showMessage("Macro is finished <3");

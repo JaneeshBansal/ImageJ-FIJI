@@ -1,0 +1,47 @@
+// Macro saving stacks to images  - janeesh 03/03/21
+
+//get the input 
+dir1 = getDirectory("Choose Source Directory");
+//get the output 
+dir2 = getDirectory("Choose Destination Directory");
+//get list of files and folders in the input
+list = getFileList(dir1);
+
+
+//activate batch mode if you don't want all the windows popping up while it's running
+//in you want to see what is happening, put // in front of the command below so it doesn't run
+
+setBatchMode(true);
+
+
+// LOOP to process the list of files
+for (i = 0; i < lengthOf(list); i++) {
+	// define the "path" 
+	// by concatenation of dir and the i element of the array fileList
+	current_imagePath = dir1+list[i];
+	// check that the currentFile is not a directory
+	if (!File.isDirectory(current_imagePath)){
+		// open the image and split
+		open(current_imagePath);
+		// get name info about the image
+		fn=getTitle();
+		//convert to 8-bit image
+		run("8-bit");
+		//stacks to images 
+		run("Stack to Images");
+		
+		
+	// Save (this loop saves all the images open currently, so be careful!)		
+		for (im=0;im<nImages;im++) {
+        	selectImage(im+1);
+        	title = getTitle;
+        	print(title);
+        	//ids[i]=getImageID;
+        	saveAs("tiff", dir2+"R_"+title); // you can change the 'R' to something else
+} 
+}
+run("Close All");
+
+setBatchMode("exit and display");
+
+showMessage("Macro is finished <3");
